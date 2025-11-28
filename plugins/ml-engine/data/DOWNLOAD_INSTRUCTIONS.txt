@@ -1,0 +1,38 @@
+
+1. VEHICLE EMISSIONS DATA
+   Source: EPA Fuel Economy Data
+   URL: https://www.fueleconomy.gov/feg/download.shtml
+   File: Download "vehicles.csv"
+   Save as: data/vehicles_epa.csv
+
+2. BUILDING ENERGY DATA
+   Source: NYC Building Energy Benchmarking
+   URL: https://data.cityofnewyork.us/Environment/Energy-and-Water-Data-Disclosure-for-Local-Law-84-/7x5e-2fxh
+   Action: Export as CSV
+   Save as: data/buildings_nyc.csv
+
+3. INDUSTRIAL EMISSIONS DATA
+   Source: EPA Greenhouse Gas Reporting Program
+   URL: https://www.epa.gov/ghgreporting/ghg-reporting-program-data-sets
+   File: Download "Direct Emitters" dataset
+   Save as: data/industrial_epa.csv
+
+4. STEEL INDUSTRY DATA (for Factory model)
+   Source: Kaggle - Steel Industry Energy Consumption
+   URL: https://www.kaggle.com/datasets/csafrit2/steel-industry-energy-consumption
+   Action: Download dataset
+   Save as: data/steel_industry.csv
+
+5. VEHICLE CO2 DATA (Alternative)
+   Source: Kaggle - CO2 Emission by Vehicles
+   URL: https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles
+   Action: Download dataset
+   Save as: data/vehicles_co2.csv
+
+ALTERNATIVE: Use Kaggle API
+   1. Install: pip install kaggle
+   2. Setup credentials: https://www.kaggle.com/docs/api
+   3. Run: python data/download_real_datasets.py --kaggle
+
+After downloading, run:
+   python data/prepare_real_datasets.py
