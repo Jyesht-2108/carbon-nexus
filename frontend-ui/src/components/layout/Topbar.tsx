@@ -9,7 +9,7 @@ export function Topbar() {
     <motion.header
       initial={{ y: -10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-50 h-16 glass-card border-b flex items-center justify-end px-6"
+      className="sticky top-0 z-50 h-16 glass-card border-b flex items-center justify-end px-6 relative"
     >
       <div className="flex items-center gap-3">
         <motion.button

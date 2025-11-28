@@ -14,7 +14,7 @@ const navItems = [
 
 export function Sidebar() {
   return (
-    <aside className="w-64 glass-card border-r flex flex-col">
+    <aside className="w-64 glass-card border-r flex flex-col relative z-20">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

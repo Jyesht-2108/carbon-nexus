@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { User, Bot, FileText } from 'lucide-react';
 import { CiteCard } from './CiteCard';
+import { LottieTyping } from '@/components/effects/LottieLoader';
 
 interface Message {
   id: string;

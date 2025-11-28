@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { scaleIn } from '@/lib/animations';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { LottieCheckmark } from '../effects/LottieLoader';
+import { LottieLoader } from '../effects/LottieLoader';
 
 interface FileUploadCardProps {
   onUploadComplete: (result: any) => void;
@@ -149,18 +151,21 @@ export function FileUploadCard({ onUploadComplete }: FileUploadCardProps) {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="space-y-3"
+                      className="space-y-4"
                     >
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="flex justify-center">
+                        <LottieLoader size={48} />
+                      </div>
+                      <div className="h-3 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-gradient-to-r from-primary to-accent1"
+                          className="h-full bg-gradient-to-r from-neon-cyan to-neon-teal"
                           initial={{ width: 0 }}
                           animate={{ width: '100%' }}
                           transition={{ duration: 2, ease: 'easeInOut' }}
-                          style={{ boxShadow: '0 0 10px rgba(14, 165, 160, 0.5)' }}
+                          style={{ boxShadow: '0 0 15px rgba(0, 246, 255, 0.6)' }}
                         />
                       </div>
-                      <p className="text-sm text-muted dark:text-gray-400 font-medium">
+                      <p className="text-sm text-muted dark:text-text-muted font-medium text-center">
                         Uploading and processing...
                       </p>
                     </motion.div>
@@ -169,10 +174,12 @@ export function FileUploadCard({ onUploadComplete }: FileUploadCardProps) {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 p-4 rounded-2xl bg-green-50 dark:bg-green-900/20"
+                      className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-green-50 dark:bg-neon-teal/10"
                     >
-                      <CheckCircle2 className="w-6 h-6" />
-                      <span className="font-semibold">Upload successful!</span>
+                      <LottieCheckmark size={48} />
+                      <span className="font-semibold text-green-600 dark:text-neon-teal">
+                        Upload successful!
+                      </span>
                     </motion.div>
                   )}
                   {uploadMutation.isError && (
