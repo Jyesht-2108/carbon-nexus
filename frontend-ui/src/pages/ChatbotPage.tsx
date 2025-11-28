@@ -19,12 +19,18 @@ export function ChatbotPage() {
       className="h-full flex gap-6"
     >
       <div className="flex-1 flex flex-col">
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">RAG Assistant</h1>
-          <p className="text-gray-600 mt-1">
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="mb-6 glass-card p-6 rounded-2xl border-l-4 border-l-accent1"
+        >
+          <h1 className="text-3xl font-heading font-bold bg-gradient-to-r from-accent1 to-primary bg-clip-text text-transparent">
+            RAG Assistant
+          </h1>
+          <p className="text-muted dark:text-gray-400 mt-2 text-lg">
             Upload documents and ask questions about your carbon data
           </p>
-        </div>
+        </motion.div>
         <ChatWindow documents={documents} onDocumentUpload={handleDocumentUpload} />
       </div>
       <DocumentListSidebar documents={documents} />

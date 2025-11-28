@@ -18,36 +18,58 @@ export function RecommendationCard({
   onDismiss,
 }: RecommendationCardProps) {
   return (
-    <motion.div variants={fadeIn}>
-      <Card className="hover:shadow-xl transition-shadow">
-        <CardContent className="p-4">
-          <div className="space-y-3">
+    <motion.div
+      variants={fadeIn}
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="overflow-hidden border-l-4 border-l-primary">
+        <CardContent className="p-5">
+          <div className="space-y-4">
             <div>
-              <h4 className="font-semibold text-gray-900">{recommendation.title}</h4>
-              <p className="text-sm text-gray-600 mt-1">{recommendation.body}</p>
+              <h4 className="font-heading font-semibold text-gray-900 dark:text-gray-100 text-base">
+                {recommendation.title}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">
+                {recommendation.body}
+              </p>
             </div>
-            <div className="flex gap-4 text-sm">
-              <div className="flex items-center gap-1 text-green-600">
+            <div className="flex flex-wrap gap-3 text-sm">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
+              >
                 <TrendingDown className="w-4 h-4" />
-                <span className="font-medium">
+                <span className="font-semibold">
                   {formatCO2(Math.abs(recommendation.co2_impact))}
                 </span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-600">
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400"
+              >
                 <DollarSign className="w-4 h-4" />
-                <span>${recommendation.cost_estimate}k</span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-600">
-                <span className="text-xs">Feasibility:</span>
-                <span className="font-medium">{recommendation.feasibility_score}/10</span>
-              </div>
+                <span className="font-semibold">${recommendation.cost_estimate}k</span>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400"
+              >
+                <span className="text-xs font-medium">Feasibility:</span>
+                <span className="font-semibold">{recommendation.feasibility_score}/10</span>
+              </motion.div>
             </div>
             {recommendation.status === 'pending' && (
-              <div className="flex gap-2 pt-2">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex gap-3 pt-2"
+              >
                 <Button
                   size="sm"
                   onClick={onApprove}
-                  className="flex-1 flex items-center gap-1"
+                  className="flex-1 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Approve
@@ -56,12 +78,12 @@ export function RecommendationCard({
                   size="sm"
                   variant="outline"
                   onClick={onDismiss}
-                  className="flex-1 flex items-center gap-1"
+                  className="flex-1 flex items-center justify-center gap-2"
                 >
                   <XCircle className="w-4 h-4" />
                   Dismiss
                 </Button>
-              </div>
+              </motion.div>
             )}
           </div>
         </CardContent>

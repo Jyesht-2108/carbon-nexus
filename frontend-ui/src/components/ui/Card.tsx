@@ -1,12 +1,14 @@
 import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
+    <motion.div
       ref={ref}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
       className={cn(
-        'rounded-2xl bg-white shadow-[0_8px_24px_rgba(8,12,18,0.06)] border border-gray-100 backdrop-blur-sm',
+        'rounded-2xl glass-card shadow-glass dark:shadow-glass-dark border transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl',
         className
       )}
       {...props}

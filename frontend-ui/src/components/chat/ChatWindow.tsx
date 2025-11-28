@@ -91,40 +91,34 @@ export function ChatWindow({ documents, onDocumentUpload }: ChatWindowProps) {
   }, [messages]);
 
   return (
-    <Card className="flex-1 flex flex-col h-[calc(100vh-200px)]">
+    <Card className="flex-1 flex flex-col h-[calc(100vh-200px)] overflow-hidden">
       <CardContent className="flex-1 flex flex-col p-0">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <AnimatePresence>
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">
+          <AnimatePresence mode="popLayout">
             {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                variants={fadeIn}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-              >
-                <MessageBubble message={message} />
-              </motion.div>
+              <MessageBubble key={message.id} message={message} />
             ))}
           </AnimatePresence>
           {queryMutation.isPending && (
-            <motion.div variants={fadeIn} initial="hidden" animate="show">
-              <MessageBubble
-                message={{
-                  id: 'typing',
-                  role: 'assistant',
-                  content: 'Thinking...',
-                  timestamp: new Date(),
-                }}
-                isTyping
-              />
-            </motion.div>
+            <MessageBubble
+              message={{
+                id: 'typing',
+                role: 'assistant',
+                content: 'Thinking...',
+                timestamp: new Date(),
+              }}
+              isTyping
+            />
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t p-4">
-          <div className="flex gap-2">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="border-t border-gray-200/50 dark:border-gray-700/50 p-4 glass-card"
+        >
+          <div className="flex gap-3">
             <input
               type="file"
               ref={fileInputRef}
@@ -132,26 +126,36 @@ export function ChatWindow({ documents, onDocumentUpload }: ChatWindowProps) {
               accept=".pdf,.txt,.docx"
               onChange={handleFileUpload}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Paperclip className="w-4 h-4" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="h-12 w-12"
+              >
+                <Paperclip className="w-5 h-5" />
+              </Button>
+            </motion.div>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               placeholder="Ask a question about your carbon data..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 px-5 py-3 glass-card rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:text-gray-100 transition-all duration-300"
             />
-            <Button onClick={handleSend} disabled={!input.trim() || queryMutation.isPending}>
-              <Send className="w-4 h-4" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || queryMutation.isPending}
+                size="lg"
+                className="h-12 w-12 p-0"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </CardContent>
     </Card>
   );

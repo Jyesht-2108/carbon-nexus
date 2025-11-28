@@ -17,11 +17,16 @@ export function IngestPage() {
       variants={staggerContainer}
       initial="hidden"
       animate="show"
-      className="space-y-6"
+      className="space-y-8"
     >
-      <motion.div variants={fadeIn}>
-        <h1 className="text-2xl font-bold text-gray-900">Data Upload</h1>
-        <p className="text-gray-600 mt-1">
+      <motion.div
+        variants={fadeIn}
+        className="glass-card p-6 rounded-2xl border-l-4 border-l-primary"
+      >
+        <h1 className="text-3xl font-heading font-bold bg-gradient-to-r from-primary to-accent1 bg-clip-text text-transparent">
+          Data Upload
+        </h1>
+        <p className="text-muted dark:text-gray-400 mt-2 text-lg">
           Upload CSV or XLSX files to feed the carbon tracking pipeline
         </p>
       </motion.div>
@@ -29,10 +34,18 @@ export function IngestPage() {
       <FileUploadCard onUploadComplete={handleUploadComplete} />
 
       <Card>
-        <CardHeader>
-          <CardTitle>Upload History</CardTitle>
+        <CardHeader className="border-b border-gray-200/50 dark:border-gray-700/50">
+          <CardTitle className="font-heading flex items-center gap-2">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            >
+              📊
+            </motion.div>
+            Upload History
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <UploadHistoryList history={uploadHistory} />
         </CardContent>
       </Card>

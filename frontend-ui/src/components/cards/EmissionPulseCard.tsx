@@ -16,47 +16,60 @@ export function EmissionPulseCard({ currentRate, trend, target }: EmissionPulseC
 
   return (
     <motion.div variants={scaleIn} initial="hidden" animate="show">
-      <Card>
-        <CardHeader>
-          <CardTitle>Emission Pulse</CardTitle>
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-heading">Emission Pulse</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <div className="text-4xl font-bold text-gray-900">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="text-5xl font-heading font-bold bg-gradient-to-r from-primary to-accent1 bg-clip-text text-transparent">
                 {formatNumber(currentRate, 0)}
               </div>
-              <div className="text-sm text-gray-500">kg CO₂/hr</div>
-            </div>
-            <div className="flex items-center gap-2">
+              <div className="text-sm text-muted dark:text-gray-400 mt-1">kg CO₂/hr</div>
+            </motion.div>
+            <motion.div
+              className="flex items-center gap-2 p-3 rounded-2xl glass"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
               {isPositive ? (
                 <TrendingUp className="w-5 h-5 text-red-500" />
               ) : (
                 <TrendingDown className="w-5 h-5 text-green-500" />
               )}
               <span
-                className={`text-sm font-medium ${
+                className={`text-sm font-semibold ${
                   isPositive ? 'text-red-500' : 'text-green-500'
                 }`}
               >
                 {isPositive ? '+' : ''}
                 {trend.toFixed(1)}%
               </span>
-              <span className="text-sm text-gray-500">vs target</span>
-            </div>
-            <div className="pt-2 border-t">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Target</span>
-                <span className="font-medium">{formatNumber(target, 0)} kg/hr</span>
+              <span className="text-sm text-muted dark:text-gray-400">vs target</span>
+            </motion.div>
+            <div className="pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-muted dark:text-gray-400">Target</span>
+                <span className="font-semibold dark:text-gray-200">
+                  {formatNumber(target, 0)} kg/hr
+                </span>
               </div>
-              <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div
-                  className={`h-full ${
-                    currentRate > target ? 'bg-red-500' : 'bg-green-500'
+                  className={`h-full rounded-full ${
+                    currentRate > target
+                      ? 'bg-gradient-to-r from-red-500 to-red-600'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-600'
                   }`}
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(percentOfTarget, 100)}%` }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
                 />
               </div>
             </div>
