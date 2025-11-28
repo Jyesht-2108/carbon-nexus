@@ -39,21 +39,21 @@ export const emissionsApi = {
    * Get current emissions data
    */
   async getCurrent() {
-    return apiFetch('/api/emissions/current');
+    return apiFetch('/emissions/current');
   },
 
   /**
    * Get emissions forecast
    */
   async getForecast() {
-    return apiFetch('/api/emissions/forecast');
+    return apiFetch('/emissions/forecast');
   },
 
   /**
    * Get emissions by category
    */
   async getByCategory() {
-    return apiFetch('/api/emissions/by-category');
+    return apiFetch('/emissions/by-category');
   },
 };
 
@@ -65,14 +65,14 @@ export const hotspotsApi = {
    * Get all hotspots
    */
   async getAll() {
-    return apiFetch('/api/hotspots');
+    return apiFetch('/hotspots');
   },
 
   /**
    * Get hotspot by ID
    */
   async getById(id: string) {
-    return apiFetch(`/api/hotspots/${id}`);
+    return apiFetch(`/hotspots/${id}`);
   },
 };
 
@@ -84,14 +84,14 @@ export const recommendationsApi = {
    * Get all recommendations
    */
   async getAll() {
-    return apiFetch('/api/recommendations');
+    return apiFetch('/recommendations');
   },
 
   /**
    * Approve a recommendation
    */
   async approve(id: string) {
-    return apiFetch(`/api/recommendations/${id}/approve`, {
+    return apiFetch(`/recommendations/${id}/approve`, {
       method: 'POST',
     });
   },
@@ -100,7 +100,7 @@ export const recommendationsApi = {
    * Dismiss a recommendation
    */
   async dismiss(id: string) {
-    return apiFetch(`/api/recommendations/${id}/dismiss`, {
+    return apiFetch(`/recommendations/${id}/dismiss`, {
       method: 'POST',
     });
   },
@@ -114,14 +114,14 @@ export const alertsApi = {
    * Get all alerts
    */
   async getAll() {
-    return apiFetch('/api/alerts');
+    return apiFetch('/alerts');
   },
 
   /**
    * Acknowledge an alert
    */
   async acknowledge(id: string) {
-    return apiFetch(`/api/alerts/${id}/acknowledge`, {
+    return apiFetch(`/alerts/${id}/acknowledge`, {
       method: 'POST',
     });
   },
@@ -135,7 +135,7 @@ export const simulationApi = {
    * Run what-if simulation
    */
   async simulate(scenario: any) {
-    return apiFetch('/api/simulate', {
+    return apiFetch('/simulate', {
       method: 'POST',
       body: JSON.stringify(scenario),
     });
@@ -150,14 +150,14 @@ export const dataQualityApi = {
    * Get data quality metrics
    */
   async getMetrics() {
-    return apiFetch('/api/data-quality');
+    return apiFetch('/data-quality');
   },
 
   /**
    * Get data quality by supplier
    */
   async getBySupplier(supplierId: string) {
-    return apiFetch(`/api/data-quality/${supplierId}`);
+    return apiFetch(`/data-quality/${supplierId}`);
   },
 };
 
@@ -169,7 +169,7 @@ export const healthApi = {
    * Check API health
    */
   async check() {
-    return apiFetch('/api/health');
+    return apiFetch('/health');
   },
 };
 
