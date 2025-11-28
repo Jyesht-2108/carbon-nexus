@@ -1,5 +1,5 @@
 """
-Configuration loader for Data Core
+Configuration loader for ML Engine
 Loads environment variables from .env file
 """
 import os

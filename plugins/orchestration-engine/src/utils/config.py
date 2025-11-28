@@ -1,42 +1,32 @@
-"""Configuration management for Orchestration Engine."""
+"""
+Configuration loader for Orchestration Engine
+Loads environment variables from .env file
+"""
 import os
-from typing import Optional
-from pydantic_settings import BaseSettings
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env file from project root
+env_path = Path(__file__).parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
+# Service URLs
+ML_ENGINE_URL = os.getenv('ML_ENGINE_URL', 'http://localhost:8001')
+DATA_CORE_URL = os.getenv('DATA_CORE_URL', 'http://localhost:8002')
+ORCHESTRATION_URL = os.getenv('ORCHESTRATION_URL', 'http://localhost:8003')
+RAG_URL = os.getenv('RAG_URL', 'http://localhost:8004')
 
-class Settings(BaseSettings):
-    """Application settings."""
-    
-    # Supabase
-    supabase_url: str = os.getenv("SUPABASE_URL", "")
-    supabase_service_key: str = os.getenv("SUPABASE_SERVICE_KEY", "")
-    
-    # Service URLs
-    ml_engine_url: str = os.getenv("ML_ENGINE_URL", "http://localhost:8001")
-    data_core_url: str = os.getenv("DATA_CORE_URL", "http://localhost:8002")
-    rag_service_url: str = os.getenv("RAG_SERVICE_URL", "http://localhost:4000")
-    
-    # API Configuration
-    api_port: int = int(os.getenv("API_PORT", "8000"))
-    api_host: str = os.getenv("API_HOST", "0.0.0.0")
-    
-    # Hotspot Thresholds
-    threshold_info: float = float(os.getenv("THRESHOLD_INFO", "0.8"))
-    threshold_warn: float = float(os.getenv("THRESHOLD_WARN", "1.0"))
-    threshold_critical: float = float(os.getenv("THRESHOLD_CRITICAL", "1.5"))
-    
-    # Scheduler
-    hotspot_check_interval: int = int(os.getenv("HOTSPOT_CHECK_INTERVAL", "300"))
-    baseline_recalc_interval: int = int(os.getenv("BASELINE_RECALC_INTERVAL", "3600"))
-    
-    # Logging
-    log_level: str = os.getenv("LOG_LEVEL", "INFO")
-    
-    class Config:
-        env_file = ".env"
+# Database
+SUPABASE_URL = os.getenv('SUPABASE_URL', '')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
 
+# Validate required variables
+def validate_config():
+    """Validate that required environment variables are set"""
+    if not SUPABASE_URL:
+        print("Warning: SUPABASE_URL not set")
+    if not SUPABASE_KEY:
+        print("Warning: SUPABASE_KEY not set")
 
-settings = Settings()
+# Auto-validate on import
+validate_config()
