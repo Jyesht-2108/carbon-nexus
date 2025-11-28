@@ -1,0 +1,125 @@
+services:
+  # ML Engine - Predictive models for emissions
+  ml-engine:
+    build:
+      context: ./plugins/ml-engine
+      dockerfile: Dockerfile
+    container_name: carbon-nexus-ml-engine
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./plugins/ml-engine/.env
+    networks:
+      - carbon_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Data Core - Data ingestion and storage
+  data-core:
+    build:
+      context: ./plugins/data-core
+      dockerfile: Dockerfile
+    container_name: carbon-nexus-data-core
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./plugins/data-core/.env
+    networks:
+      - carbon_network
+    depends_on:
+      ml-engine:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Orchestration Engine - Central coordination hub
+  orchestration-engine:
+    build:
+      context: ./plugins/orchestration-engine
+      dockerfile: Dockerfile
+    container_name: carbon-nexus-orchestration
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./plugins/orchestration-engine/.env
+    environment:
+      - ML_ENGINE_URL=http://ml-engine:8001
+      - DATA_CORE_URL=http://data-core:8002
+      - RAG_SERVICE_URL=http://rag-chatbot:8004
+    networks:
+      - carbon_network
+    depends_on:
+      ml-engine:
+        condition: service_healthy
+      data-core:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # RAG Chatbot - Recommendation generation
+  rag-chatbot:
+    build:
+      context: ./rag_chatbot_plugin
+      dockerfile: Dockerfile
+    container_name: carbon-nexus-rag-chatbot
+    ports:
+      - "8004:8004"
+    env_file:
+      - ./rag_chatbot_plugin/.env
+    environment:
+      - ORCHESTRATION_URL=http://orchestration-engine:8003
+    networks:
+      - carbon_network
+    depends_on:
+      orchestration-engine:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend UI - React application
+  frontend-ui:
+    build:
+      context: ./frontend-ui
+      dockerfile: Dockerfile
+    container_name: carbon-nexus-frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend-ui/.env
+    environment:
+      - VITE_API_URL=http://localhost:8003
+      - VITE_ORCHESTRATION_WS_URL=ws://localhost:8003
+      - VITE_RAG_URL=http://localhost:8004
+    networks:
+      - carbon_network
+    depends_on:
+      orchestration-engine:
+        condition: service_healthy
+      rag-chatbot:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  carbon_network:
+    driver: bridge
+    name: carbon_network
