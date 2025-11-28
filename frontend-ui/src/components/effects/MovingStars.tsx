@@ -2,7 +2,11 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export function MovingStars() {
+interface MovingStarsProps {
+  isDark?: boolean;
+}
+
+export function MovingStars({ isDark = true }: MovingStarsProps) {
   const starsRef = useRef<THREE.Points>(null);
 
   const [positions, colors] = useMemo(() => {
@@ -20,28 +24,48 @@ export function MovingStars() {
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = radius * Math.cos(phi);
 
-      // Cyan/teal color variations
-      const colorVariation = Math.random();
-      if (colorVariation > 0.7) {
-        // Bright cyan
-        colors[i * 3] = 0.0;
-        colors[i * 3 + 1] = 0.96;
-        colors[i * 3 + 2] = 1.0;
-      } else if (colorVariation > 0.4) {
-        // Teal
-        colors[i * 3] = 0.05;
-        colors[i * 3 + 1] = 0.94;
-        colors[i * 3 + 2] = 0.78;
+      // Elegant color variations
+      if (isDark) {
+        const colorVariation = Math.random();
+        if (colorVariation > 0.85) {
+          // Bright white
+          colors[i * 3] = 1.0;
+          colors[i * 3 + 1] = 1.0;
+          colors[i * 3 + 2] = 1.0;
+        } else if (colorVariation > 0.6) {
+          // Soft blue-white
+          colors[i * 3] = 0.85;
+          colors[i * 3 + 1] = 0.9;
+          colors[i * 3 + 2] = 1.0;
+        } else if (colorVariation > 0.3) {
+          // Pale cyan
+          colors[i * 3] = 0.7;
+          colors[i * 3 + 1] = 0.85;
+          colors[i * 3 + 2] = 0.95;
+        } else {
+          // Dim white
+          colors[i * 3] = 0.6;
+          colors[i * 3 + 1] = 0.65;
+          colors[i * 3 + 2] = 0.7;
+        }
       } else {
-        // White
-        colors[i * 3] = 1.0;
-        colors[i * 3 + 1] = 1.0;
-        colors[i * 3 + 2] = 1.0;
+        const colorVariation = Math.random();
+        if (colorVariation > 0.7) {
+          // Medium gray
+          colors[i * 3] = 0.4;
+          colors[i * 3 + 1] = 0.45;
+          colors[i * 3 + 2] = 0.5;
+        } else {
+          // Dark gray
+          colors[i * 3] = 0.2;
+          colors[i * 3 + 1] = 0.25;
+          colors[i * 3 + 2] = 0.3;
+        }
       }
     }
 
     return [positions, colors];
-  }, []);
+  }, [isDark]);
 
   useFrame((state) => {
     if (starsRef.current) {

@@ -215,3 +215,82 @@ The frontend now includes:
 - **Production-ready** component architecture
 
 All components follow the updated architecture spec and are ready for backend integration.
+
+
+---
+
+## Carbon Emission 3D Effects & Theme System Update
+
+### Theme System
+- **Default theme**: Dark mode (changed from light)
+- **Theme toggle**: Available in top-right corner of Topbar
+- **Theme persistence**: Stored in localStorage
+- **Dynamic theme detection**: MutationObserver watches for theme changes
+
+### 3D Carbon Molecular Models
+
+#### CO2 Molecules (70% of molecules)
+- Linear structure: O=C=O
+- Carbon atom: Dark gray/black with cyan glow
+- Oxygen atoms: Red with emission glow
+- Double bonds: Cyan glowing cylinders (2 per side)
+- Accurate molecular geometry
+
+#### CO Molecules (30% of molecules)
+- Linear structure: C≡O
+- Carbon atom: Dark gray/black with cyan glow
+- Oxygen atom: Red with emission glow
+- Triple bond: Three cyan glowing cylinders
+- Accurate molecular geometry
+
+### Theme-Aware 3D Effects
+
+All 3D components adapt to theme:
+
+**MovingStars**
+- Dark mode: Cyan/teal/white stars
+- Light mode: Black/dark gray stars
+
+**CarbonMolecules**
+- Dark mode: Bright colors with strong emission
+- Light mode: Darker colors for visibility
+
+**EmissionParticles**
+- Dark mode: Cyan/orange/red particles
+- Light mode: Dark blue/dark orange/dark red particles
+
+**CarbonVisualization**
+- Dark mode: Bright neon colors
+- Light mode: Muted colors for contrast
+
+### UI Visibility Improvements
+
+**Light Mode:**
+- White background (#FFFFFF)
+- Dark text (#1a1a1a)
+- High-opacity cards (98%)
+- Stronger borders and shadows
+- Darker gradient colors
+
+**Dark Mode:**
+- Gradient background (preserved)
+- Light text (#F8FAFC)
+- Glass-morphism cards (3% opacity)
+- Neon glows and effects
+- Bright gradient colors
+
+### Components Updated
+- `Background3D.tsx` - Theme detection and prop passing
+- `CarbonMolecules.tsx` - Accurate CO2/CO molecular structures
+- `MovingStars.tsx` - Theme-aware star colors
+- `EmissionParticles.tsx` - Theme-aware particle colors
+- `CarbonVisualization.tsx` - Theme-aware visualization
+- `useTheme.ts` - Default changed to dark
+- `globals.css` - Enhanced contrast for both themes
+
+### Features Preserved
+- Moving starfield background (unchanged)
+- All existing UI components
+- WebSocket functionality
+- Upload and chat features
+- Animations and transitions
