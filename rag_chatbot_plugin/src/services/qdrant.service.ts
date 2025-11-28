@@ -10,6 +10,7 @@ export interface VectorPayload {
   page: number;
   chunkIndex: number;
   textExcerpt: string;
+  [key: string]: unknown;  // Index signature for Qdrant compatibility
 }
 
 export interface SearchResult {
@@ -102,7 +103,7 @@ export class QdrantService {
       return results.map(r => ({
         id: r.id.toString(),
         score: r.score,
-        payload: r.payload as VectorPayload
+        payload: r.payload as unknown as VectorPayload
       }));
     } catch (error) {
       logger.error('Search failed', error);

@@ -1,3 +1,5 @@
+// @ts-ignore - pdf-parse doesn't have types
+// @ts-ignore - pdf-parse doesn't have types
 import pdfParse from 'pdf-parse';
 import { logger } from '../config/logger';
 

@@ -42,7 +42,7 @@ export class EmbeddingService {
       }
       
       const data = await response.json();
-      return data.embeddings;
+      return (data as { embeddings: number[][] }).embeddings;
     } catch (error) {
       logger.error('Embedding failed', error);
       throw new Error('Failed to generate embeddings');
