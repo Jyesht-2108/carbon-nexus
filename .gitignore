@@ -1,1 +1,51 @@
-doc/
+# Environment Variables (NEVER COMMIT THESE)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Supabase
+.supabase/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Models (optional - uncomment if models are large)
+# *.pkl
+# *.joblib

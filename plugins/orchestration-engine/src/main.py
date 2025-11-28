@@ -1,11 +1,13 @@
 """Main FastAPI application for Orchestration Engine."""
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .utils.config import settings
 from .utils.logger import logger
 from .api import routes_dashboard, routes_hotspots, routes_recommendations, routes_simulation, routes_alerts
 from .services.scheduler import scheduler
+from .services import websocket_broadcaster
+from typing import List
 
 
 @asynccontextmanager
@@ -52,6 +54,56 @@ app.include_router(routes_hotspots.router)
 app.include_router(routes_recommendations.router)
 app.include_router(routes_simulation.router)
 app.include_router(routes_alerts.router)
+
+# WebSocket connection managers
+hotspot_connections: List[WebSocket] = []
+alert_connections: List[WebSocket] = []
+recommendation_connections: List[WebSocket] = []
+
+# Initialize broadcaster with connection lists
+websocket_broadcaster.set_connections(hotspot_connections, alert_connections, recommendation_connections)
+
+
+@app.websocket("/ws/hotspots")
+async def websocket_hotspots(websocket: WebSocket):
+    """WebSocket endpoint for hotspot updates."""
+    await websocket.accept()
+    hotspot_connections.append(websocket)
+    logger.info("Client connected to /ws/hotspots")
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        hotspot_connections.remove(websocket)
+        logger.info("Client disconnected from /ws/hotspots")
+
+
+@app.websocket("/ws/alerts")
+async def websocket_alerts(websocket: WebSocket):
+    """WebSocket endpoint for alert updates."""
+    await websocket.accept()
+    alert_connections.append(websocket)
+    logger.info("Client connected to /ws/alerts")
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        alert_connections.remove(websocket)
+        logger.info("Client disconnected from /ws/alerts")
+
+
+@app.websocket("/ws/recommendations")
+async def websocket_recommendations(websocket: WebSocket):
+    """WebSocket endpoint for recommendation updates."""
+    await websocket.accept()
+    recommendation_connections.append(websocket)
+    logger.info("Client connected to /ws/recommendations")
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        recommendation_connections.remove(websocket)
+        logger.info("Client disconnected from /ws/recommendations")
 
 
 @app.get("/health")

@@ -1,99 +1,185 @@
-import axios from 'axios';
+/**
+ * API Client for Frontend
+ * Communicates with Orchestration Engine (main backend API)
+ */
+import { VITE_API_URL } from '../config/env';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Base API URL (defaults to Orchestration Engine)
+const API_BASE_URL = VITE_API_URL;
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+/**
+ * Generic fetch wrapper with error handling
+ */
+async function apiFetch<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
 
-export interface EmissionCurrent {
-  current_rate: number;
-  trend: number;
-  categories: Record<string, number>;
-  total_today: number;
-  target: number;
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
-export interface Hotspot {
-  id: number;
-  entity: string;
-  entity_type: string;
-  predicted: number;
-  baseline: number;
-  percent_above: number;
-  severity: 'info' | 'warning' | 'critical';
-}
-
-export interface Recommendation {
-  id: number;
-  title: string;
-  body: string;
-  co2_impact: number;
-  cost_estimate: number;
-  feasibility_score: number;
-  status: 'pending' | 'approved' | 'dismissed';
-}
-
-export interface Alert {
-  id: number;
-  level: 'info' | 'warning' | 'critical';
-  message: string;
-  hotspot_id?: number;
-  acknowledged_at?: string;
-  created_at: string;
-}
-
-export interface ForecastData {
-  dates: string[];
-  forecast: number[];
-  confidence_low: number[];
-  confidence_high: number[];
-}
-
-export interface DataQuality {
-  completeness_pct: number;
-  predicted_pct: number;
-  anomalies_count: number;
-}
-
-export interface SimulationRequest {
-  vehicle_type?: string;
-  route?: string;
-  load_change?: number;
-}
-
-export interface SimulationResponse {
-  new_value: number;
-  delta: number;
-}
-
+/**
+ * Emissions API
+ */
 export const emissionsApi = {
-  getCurrent: () => api.get<EmissionCurrent>('/emissions/current'),
-  getForecast: () => api.get<ForecastData>('/emissions/forecast'),
+  /**
+   * Get current emissions data
+   */
+  async getCurrent() {
+    return apiFetch('/api/emissions/current');
+  },
+
+  /**
+   * Get emissions forecast
+   */
+  async getForecast() {
+    return apiFetch('/api/emissions/forecast');
+  },
+
+  /**
+   * Get emissions by category
+   */
+  async getByCategory() {
+    return apiFetch('/api/emissions/by-category');
+  },
 };
 
+/**
+ * Hotspots API
+ */
 export const hotspotsApi = {
-  getAll: () => api.get<Hotspot[]>('/hotspots'),
+  /**
+   * Get all hotspots
+   */
+  async getAll() {
+    return apiFetch('/api/hotspots');
+  },
+
+  /**
+   * Get hotspot by ID
+   */
+  async getById(id: string) {
+    return apiFetch(`/api/hotspots/${id}`);
+  },
 };
 
+/**
+ * Recommendations API
+ */
 export const recommendationsApi = {
-  getAll: () => api.get<Recommendation[]>('/recommendations'),
-  approve: (id: number) => api.post(`/recommendations/${id}/approve`),
-  dismiss: (id: number) => api.post(`/recommendations/${id}/dismiss`),
+  /**
+   * Get all recommendations
+   */
+  async getAll() {
+    return apiFetch('/api/recommendations');
+  },
+
+  /**
+   * Approve a recommendation
+   */
+  async approve(id: string) {
+    return apiFetch(`/api/recommendations/${id}/approve`, {
+      method: 'POST',
+    });
+  },
+
+  /**
+   * Dismiss a recommendation
+   */
+  async dismiss(id: string) {
+    return apiFetch(`/api/recommendations/${id}/dismiss`, {
+      method: 'POST',
+    });
+  },
 };
 
+/**
+ * Alerts API
+ */
 export const alertsApi = {
-  getAll: () => api.get<Alert[]>('/alerts'),
-  acknowledge: (id: number) => api.post(`/alerts/${id}/acknowledge`),
+  /**
+   * Get all alerts
+   */
+  async getAll() {
+    return apiFetch('/api/alerts');
+  },
+
+  /**
+   * Acknowledge an alert
+   */
+  async acknowledge(id: string) {
+    return apiFetch(`/api/alerts/${id}/acknowledge`, {
+      method: 'POST',
+    });
+  },
 };
 
-export const dataQualityApi = {
-  get: () => api.get<DataQuality>('/data-quality'),
-};
-
+/**
+ * Simulation API
+ */
 export const simulationApi = {
-  simulate: (data: SimulationRequest) => api.post<SimulationResponse>('/simulate', data),
+  /**
+   * Run what-if simulation
+   */
+  async simulate(scenario: any) {
+    return apiFetch('/api/simulate', {
+      method: 'POST',
+      body: JSON.stringify(scenario),
+    });
+  },
+};
+
+/**
+ * Data Quality API
+ */
+export const dataQualityApi = {
+  /**
+   * Get data quality metrics
+   */
+  async getMetrics() {
+    return apiFetch('/api/data-quality');
+  },
+
+  /**
+   * Get data quality by supplier
+   */
+  async getBySupplier(supplierId: string) {
+    return apiFetch(`/api/data-quality/${supplierId}`);
+  },
+};
+
+/**
+ * Health Check
+ */
+export const healthApi = {
+  /**
+   * Check API health
+   */
+  async check() {
+    return apiFetch('/api/health');
+  },
+};
+
+// Export all APIs as default
+export default {
+  emissions: emissionsApi,
+  hotspots: hotspotsApi,
+  recommendations: recommendationsApi,
+  alerts: alertsApi,
+  simulation: simulationApi,
+  dataQuality: dataQualityApi,
+  health: healthApi,
 };

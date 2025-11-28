@@ -1,50 +1,78 @@
-import { io, Socket } from 'socket.io-client';
-
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+const ORCHESTRATION_WS_URL = 'ws://localhost:8003';
 
 class WebSocketService {
-  private socket: Socket | null = null;
+  private connections: Map<string, WebSocket> = new Map();
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
+  private reconnectTimers: Map<string, number> = new Map();
 
   connect() {
-    if (this.socket?.connected) return;
+    // Connect to orchestration WebSocket endpoints
+    this.connectToEndpoint('hotspots', `${ORCHESTRATION_WS_URL}/ws/hotspots`);
+    this.connectToEndpoint('alerts', `${ORCHESTRATION_WS_URL}/ws/alerts`);
+    this.connectToEndpoint('recommendations', `${ORCHESTRATION_WS_URL}/ws/recommendations`);
+  }
 
-    this.socket = io(WS_URL, {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    });
+  private connectToEndpoint(channel: string, url: string) {
+    if (this.connections.has(channel)) {
+      return; // Already connected
+    }
 
-    this.socket.on('connect', () => {
-      console.log('WebSocket connected');
-    });
+    try {
+      const ws = new WebSocket(url);
 
-    this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
-    });
+      ws.onopen = () => {
+        console.log(`WebSocket connected: ${channel}`);
+        this.connections.set(channel, ws);
+        
+        // Clear reconnect timer if exists
+        const timer = this.reconnectTimers.get(channel);
+        if (timer) {
+          clearTimeout(timer);
+          this.reconnectTimers.delete(channel);
+        }
+      };
 
-    // Setup channel listeners
-    const channels = [
-      'emissions',
-      'hotspots',
-      'alerts',
-      'recommendations',
-      'ingest_jobs',
-    ];
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          this.notifyListeners(channel, data);
+        } catch (error) {
+          console.error(`Error parsing WebSocket message for ${channel}:`, error);
+        }
+      };
 
-    channels.forEach((channel) => {
-      this.socket?.on(channel, (data) => {
-        this.notifyListeners(channel, data);
-      });
-    });
+      ws.onerror = (error) => {
+        console.error(`WebSocket error on ${channel}:`, error);
+      };
+
+      ws.onclose = () => {
+        console.log(`WebSocket disconnected: ${channel}`);
+        this.connections.delete(channel);
+        
+        // Attempt to reconnect after 3 seconds
+        const timer = setTimeout(() => {
+          console.log(`Reconnecting to ${channel}...`);
+          this.connectToEndpoint(channel, url);
+        }, 3000);
+        
+        this.reconnectTimers.set(channel, timer);
+      };
+    } catch (error) {
+      console.error(`Error connecting to ${channel}:`, error);
+    }
   }
 
   disconnect() {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-    }
+    // Close all connections
+    this.connections.forEach((ws, channel) => {
+      ws.close();
+      console.log(`Closed WebSocket: ${channel}`);
+    });
+    this.connections.clear();
+
+    // Clear all reconnect timers
+    this.reconnectTimers.forEach((timer) => clearTimeout(timer));
+    this.reconnectTimers.clear();
   }
 
   subscribe(channel: string, callback: (data: any) => void) {
@@ -64,10 +92,6 @@ class WebSocketService {
     if (channelListeners) {
       channelListeners.forEach((callback) => callback(data));
     }
-  }
-
-  emit(channel: string, data: any) {
-    this.socket?.emit(channel, data);
   }
 }
 

@@ -12,7 +12,7 @@ class SupabaseClient:
         """Initialize Supabase client."""
         self.client: Client = create_client(
             settings.supabase_url,
-            settings.supabase_service_key
+            settings.supabase_key
         )
         logger.info("Supabase client initialized")
     
@@ -107,6 +107,15 @@ class SupabaseClient:
         except Exception as e:
             logger.error(f"Error fetching hotspots: {e}")
             return []
+    
+    async def insert_recommendation(self, recommendation: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Insert recommendation."""
+        try:
+            response = self.client.table("recommendations").insert(recommendation).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            logger.error(f"Error inserting recommendation: {e}")
+            return None
     
     async def get_recommendations(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get recommendations, optionally filtered by status."""

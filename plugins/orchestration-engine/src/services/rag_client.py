@@ -1,88 +1,91 @@
-"""RAG Chatbot client for recommendations."""
+"""
+RAG Chatbot HTTP Client
+Provides functions to request recommendations and root cause analysis
+"""
 import httpx
-from typing import Dict, Any, Optional, List
-from ..utils.config import settings
-from ..utils.logger import logger
-
+from typing import Dict, Any, List, Optional
+from ..utils.config import RAG_URL
 
 class RAGClient:
-    """Client for RAG Chatbot service."""
+    """Client for RAG Chatbot API"""
     
     def __init__(self):
-        """Initialize RAG client."""
-        self.base_url = settings.rag_service_url
-        self.timeout = 60.0  # RAG can take longer due to AI processing
+        self.base_url = RAG_URL
+        self.timeout = 60.0  # RAG may take longer
     
-    async def generate_recommendations(
+    async def request_recommendations(
         self,
-        supplier: str,
-        predicted: float,
-        baseline: float,
-        hotspot_reason: Optional[str] = None,
-        hotspot_id: Optional[int] = None
-    ) -> Optional[Dict[str, Any]]:
-        """Generate recommendations for a hotspot."""
-        try:
-            payload = {
-                "supplier": supplier,
-                "predicted": predicted,
-                "baseline": baseline
-            }
-            
-            if hotspot_reason:
-                payload["hotspot_reason"] = hotspot_reason
-            if hotspot_id:
-                payload["hotspot_id"] = hotspot_id
-            
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    f"{self.base_url}/api/rag/recommend",
-                    json=payload
-                )
-                response.raise_for_status()
-                return response.json()
-        except Exception as e:
-            logger.error(f"RAG recommendation generation error: {e}")
-            return None
+        hotspot_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Request recommendations for a hotspot
+        
+        Args:
+            hotspot_data: Dict with entity, predicted, baseline, context
+        
+        Returns:
+            Dict with root_cause and actions list
+        """
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                f"{self.base_url}/api/recommendations",
+                json=hotspot_data
+            )
+            response.raise_for_status()
+            return response.json()
     
-    async def get_recommendations(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get recommendations from RAG service."""
-        try:
-            url = f"{self.base_url}/api/recommendations"
-            if status:
-                url += f"?status={status}"
-            
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(url)
-                response.raise_for_status()
-                return response.json()
-        except Exception as e:
-            logger.error(f"Error fetching recommendations: {e}")
-            return []
+    async def analyze_root_cause(
+        self,
+        entity: str,
+        data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Analyze root cause of emission spike
+        
+        Args:
+            entity: Entity identifier (supplier, facility, etc.)
+            data: Context data for analysis
+        
+        Returns:
+            Dict with root_cause analysis
+        """
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                f"{self.base_url}/api/analyze",
+                json={"entity": entity, "data": data}
+            )
+            response.raise_for_status()
+            return response.json()
     
-    async def update_recommendation_status(self, rec_id: int, status: str) -> bool:
-        """Update recommendation status."""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.patch(
-                    f"{self.base_url}/api/recommendations/{rec_id}",
-                    json={"status": status}
-                )
-                response.raise_for_status()
-                return True
-        except Exception as e:
-            logger.error(f"Error updating recommendation status: {e}")
-            return False
+    async def chat(self, message: str, context: Optional[Dict] = None) -> Dict[str, Any]:
+        """
+        Send a chat message to RAG chatbot
+        
+        Args:
+            message: User message
+            context: Optional context data
+        
+        Returns:
+            Dict with response and sources
+        """
+        payload = {"message": message}
+        if context:
+            payload["context"] = context
+        
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                f"{self.base_url}/api/chat",
+                json=payload
+            )
+            response.raise_for_status()
+            return response.json()
     
-    async def health_check(self) -> bool:
-        """Check if RAG service is healthy."""
-        try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                response = await client.get(f"{self.base_url}/health")
-                return response.status_code == 200
-        except Exception:
-            return False
-
+    async def health_check(self) -> Dict[str, Any]:
+        """Check RAG service health status"""
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.get(f"{self.base_url}/api/health")
+            response.raise_for_status()
+            return response.json()
 
 # Singleton instance
 rag_client = RAGClient()

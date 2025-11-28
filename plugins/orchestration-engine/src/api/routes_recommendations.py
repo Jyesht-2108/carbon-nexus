@@ -63,6 +63,14 @@ async def approve_recommendation(
         
         logger.info(f"Recommendation {rec_id} approved")
         
+        # Broadcast status update
+        from ..services.websocket_broadcaster import broadcast_recommendation
+        await broadcast_recommendation({
+            "id": rec_id,
+            "status": "approved",
+            "action": "status_update"
+        })
+        
         return {
             "status": "approved",
             "recommendation_id": rec_id,
@@ -98,6 +106,14 @@ async def reject_recommendation(
         })
         
         logger.info(f"Recommendation {rec_id} rejected")
+        
+        # Broadcast status update
+        from ..services.websocket_broadcaster import broadcast_recommendation
+        await broadcast_recommendation({
+            "id": rec_id,
+            "status": "rejected",
+            "action": "status_update"
+        })
         
         return {
             "status": "rejected",

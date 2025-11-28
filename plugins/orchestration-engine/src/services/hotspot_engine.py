@@ -100,6 +100,10 @@ class HotspotEngine:
             
             logger.info(f"Hotspot detected: {entity} ({severity}) - {percent_above:.1f}% above baseline")
             
+            # Broadcast hotspot to WebSocket clients
+            from .websocket_broadcaster import broadcast_hotspot
+            await broadcast_hotspot(inserted_hotspot)
+            
             # Generate alert
             await self._generate_alert(inserted_hotspot)
             
@@ -182,8 +186,13 @@ class HotspotEngine:
                 "created_at": datetime.utcnow().isoformat()
             }
             
-            await db_client.insert_alert(alert)
+            inserted_alert = await db_client.insert_alert(alert)
             logger.info(f"Alert generated for hotspot {hotspot['id']}")
+            
+            # Broadcast alert to WebSocket clients
+            if inserted_alert:
+                from .websocket_broadcaster import broadcast_alert
+                await broadcast_alert(inserted_alert)
             
         except Exception as e:
             logger.error(f"Error generating alert: {e}")
@@ -191,19 +200,36 @@ class HotspotEngine:
     async def _generate_recommendations(self, hotspot: Dict[str, Any]) -> None:
         """Generate recommendations via RAG for hotspot."""
         try:
-            # Prepare hotspot reason
-            reason = f"Emissions {hotspot['percent_above']:.1f}% above baseline"
+            # Prepare hotspot data for RAG
+            hotspot_data = {
+                "entity": hotspot["entity"],
+                "predicted": hotspot["predicted_co2"],
+                "baseline": hotspot["baseline_co2"],
+                "context": f"Emissions {hotspot['percent_above']:.1f}% above baseline"
+            }
             
             # Call RAG service
-            result = await rag_client.generate_recommendations(
-                supplier=hotspot["entity"],
-                predicted=hotspot["predicted_co2"],
-                baseline=hotspot["baseline_co2"],
-                hotspot_reason=reason,
-                hotspot_id=hotspot["id"]
-            )
+            result = await rag_client.request_recommendations(hotspot_data)
             
-            if result:
+            if result and result.get("actions"):
+                # Insert each recommendation action
+                for action in result["actions"]:
+                    recommendation = {
+                        "hotspot_id": hotspot["id"],
+                        "action": action.get("action", ""),
+                        "co2_reduction": action.get("co2_reduction", 0),
+                        "status": "pending",
+                        "root_cause": result.get("root_cause", ""),
+                        "created_at": datetime.utcnow().isoformat()
+                    }
+                    
+                    inserted = await db_client.insert_recommendation(recommendation)
+                    
+                    # Broadcast recommendation to WebSocket clients
+                    if inserted:
+                        from .websocket_broadcaster import broadcast_recommendation
+                        await broadcast_recommendation(inserted)
+                
                 logger.info(f"Recommendations generated for hotspot {hotspot['id']}")
             
         except Exception as e:
