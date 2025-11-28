@@ -3,17 +3,22 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <motion.div
-      ref={ref}
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      className={cn(
-        'rounded-2xl glass-card shadow-glass dark:shadow-glass-dark border transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl',
-        className
-      )}
-      {...props}
-    />
-  )
+  ({ className, children, ...props }, ref) => {
+    return (
+      <motion.div
+        ref={ref}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className={cn(
+          'glass-card relative overflow-hidden',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    );
+  }
 );
 Card.displayName = 'Card';
 
