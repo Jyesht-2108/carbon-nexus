@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  data-core:
+    build: .
+    container_name: carbon-nexus-data-core
+    ports:
+      - "8002:8002"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - API_HOST=0.0.0.0
+      - API_PORT=8002
+    volumes:
+      - ./logs:/app/logs
+      - ./models:/app/models
+    restart: unless-stopped

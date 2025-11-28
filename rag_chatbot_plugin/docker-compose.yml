@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Qdrant for Carbon Nexus (separate instance, different port)
+  qdrant-carbon-nexus:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-carbon-nexus
+    ports:
+      - "6334:6333"  # Different port to avoid conflict
+    volumes:
+      - qdrant_carbon_nexus_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6335
+    restart: unless-stopped
+
+  # Redis (optional caching)
+  redis-carbon-nexus:
+    image: redis:7-alpine
+    container_name: redis-carbon-nexus
+    ports:
+      - "6380:6379"  # Different port to avoid conflict
+    volumes:
+      - redis_carbon_nexus_data:/data
+    restart: unless-stopped
+
+volumes:
+  qdrant_carbon_nexus_storage:
+    name: carbon_nexus_qdrant_storage
+  redis_carbon_nexus_data:
+    name: carbon_nexus_redis_data
